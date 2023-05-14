@@ -1,40 +1,45 @@
 #!/usr/bin/python3
-""" doc """
+
+"""Script that reads stdin line by line and computes metrics"""
+
 import sys
 
 
-if __name__ == "__main__":
-    i = 0
-    status = {
-        '200': 0,
-        '301': 0,
-        '400': 0,
-        '401': 0,
-        '403': 0,
-        '404': 0,
-        '405': 0,
-        '500': 0
-    }
-    fileSize = 0
+def printsts(dic, size):
+    """ WWPrints information """
+    print("File size: {:d}".format(size))
+    for i in sorted(dic.keys()):
+        if dic[i] != 0:
+            print("{}: {:d}".format(i, dic[i]))
 
-    def printstats(fileSize, status):
-        """ doc """
-        print("File size: {:d}".format(fileSize))
-        for key in sorted(status.keys()):
-            if status[key] != 0:
-                print("{}: {:d}".format(key, status[key]))
 
-    try:
-        for line in sys.stdin:
-            words = line.split()
-            if len(words) >= 2:
-                if words[-2] in status.keys():
-                    status[words[-2]] += 1
-                fileSize += int(words[-1])
-                i += 1
-                if not i % 10:
-                    printstats(fileSize, status)
-        printstats(fileSize, status)
-    except KeyboardInterrupt:
-        printstats(fileSize, status)
-        raise
+sts = {"200": 0, "301": 0, "400": 0, "401": 0, "403": 0,
+       "404": 0, "405": 0, "500": 0}
+
+count = 0
+size = 0
+
+try:
+    for line in sys.stdin:
+        if count != 0 and count % 10 == 0:
+            printsts(sts, size)
+
+        stlist = line.split()
+        count += 1
+
+        try:
+            size += int(stlist[-1])
+        except:
+            pass
+
+        try:
+            if stlist[-2] in sts:
+                sts[stlist[-2]] += 1
+        except:
+            pass
+    printsts(sts, size)
+
+
+except KeyboardInterrupt:
+    printsts(sts, size)
+    raise
